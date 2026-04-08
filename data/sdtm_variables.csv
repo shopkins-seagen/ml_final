@@ -1,0 +1,199 @@
+variable_name,variable_label,domain
+STUDYID,Study Identifier,DM
+DOMAIN,Domain Abbreviation,DM
+USUBJID,Unique Subject Identifier,DM
+SUBJID,Subject Identifier for the Study,DM
+RFSTDTC,Subject Reference Start Date Time,DM
+RFENDTC,Subject Reference End Date Time,DM
+RFXSTDTC,Date Time of First Study Treatment,DM
+RFXENDTC,Date Time of Last Study Treatment,DM
+RFICDTC,Date Time of Informed Consent,DM
+RFPENDTC,Date Time of End of Participation,DM
+DTHDTC,Date Time of Death,DM
+DTHFL,Subject Death Flag,DM
+SITEID,Study Site Identifier,DM
+BRTHDTC,Date Time of Birth,DM
+AGE,Age,DM
+AGEU,Age Units,DM
+SEX,Sex,DM
+RACE,Race,DM
+ETHNIC,Ethnicity,DM
+ARMCD,Planned Arm Code,DM
+ARM,Description of Planned Arm,DM
+ACTARMCD,Actual Arm Code,DM
+ACTARM,Description of Actual Arm,DM
+COUNTRY,Country,DM
+DMDTC,Date Time of Collection Demographics,DM
+DMDY,Study Day of Collection Demographics,DM
+AESEQ,Sequence Number Adverse Event,AE
+AEGRPID,Group Identifier Adverse Event,AE
+AETERM,Reported Term for the Adverse Event,AE
+AEMODIFY,Modified Reported Term Adverse Event,AE
+AECAT,Category for Adverse Event,AE
+AEBODSYS,Body System or Organ Class Adverse Event,AE
+AEDECOD,Dictionary Derived Term Adverse Event,AE
+AESEV,Severity Intensity Adverse Event,AE
+AESER,Serious Adverse Event Flag,AE
+AEREL,Causality Adverse Event,AE
+AEOUT,Outcome of Adverse Event,AE
+AESTDTC,Start Date Time of Adverse Event,AE
+AEENDTC,End Date Time of Adverse Event,AE
+AEDUR,Duration of Adverse Event,AE
+AESTDY,Study Day of Start of Adverse Event,AE
+AEENDY,Study Day of End of Adverse Event,AE
+AECONTRT,Concomitant or Additional Treatment Given Adverse Event,AE
+AEHLT,High Level Term Adverse Event,AE
+AEHLGT,High Level Group Term Adverse Event,AE
+AESOC,Primary System Organ Class Adverse Event,AE
+CMSEQ,Sequence Number Concomitant Medication,CM
+CMGRPID,Group Identifier Concomitant Medication,CM
+CMLNKID,Link Identifier Concomitant Medication,CM
+CMTERM,Reported Name of Drug Medication or Therapy,CM
+CMMODIFY,Modified Reported Name Concomitant Medication,CM
+CMDECOD,Standardized Medication Name,CM
+CMCAT,Category for Medication,CM
+CMSCAT,Subcategory for Medication,CM
+CMPRESP,Concomitant Medication Pre Specified,CM
+CMOCCUR,Concomitant Medication Occurrence,CM
+CMSTAT,Completion Status Concomitant Medication,CM
+CMINDC,Indication for Concomitant Medication,CM
+CMTRT,Name of Treatment Concomitant Medication,CM
+CMDOSE,Dose per Administration Concomitant Medication,CM
+CMDOSU,Units of Dose Concomitant Medication,CM
+CMDOSFRM,Dose Form Concomitant Medication,CM
+CMDOSFRQ,Dosing Frequency per Interval Concomitant Medication,CM
+CMROUTE,Route of Administration Concomitant Medication,CM
+CMSTDTC,Start Date Time of Medication,CM
+CMENDTC,End Date Time of Medication,CM
+CMSTDY,Study Day of Start of Medication,CM
+CMENDY,Study Day of End of Medication,CM
+EXSEQ,Sequence Number Exposure,EX
+EXGRPID,Group Identifier Exposure,EX
+EXTRT,Name of Treatment Exposure,EX
+EXDOSE,Dose per Administration Exposure,EX
+EXDOSU,Units of Dose Exposure,EX
+EXDOSFRM,Dose Form Exposure,EX
+EXDOSFRQ,Dosing Frequency per Interval Exposure,EX
+EXROUTE,Route of Administration Exposure,EX
+EXLOT,Lot Number Exposure,EX
+EXLOC,Location of Dose Administration Exposure,EX
+EXSTDTC,Start Date Time of Treatment Exposure,EX
+EXENDTC,End Date Time of Treatment Exposure,EX
+EXSTDY,Study Day of Start of Treatment Exposure,EX
+EXENDY,Study Day of End of Treatment Exposure,EX
+EXDUR,Duration of Treatment Exposure,EX
+EXADJ,Reason for Dose Adjustment Exposure,EX
+LBSEQ,Sequence Number Laboratory,LB
+LBGRPID,Group Identifier Laboratory,LB
+LBTESTCD,Lab Test or Examination Short Name,LB
+LBTEST,Lab Test or Examination Name,LB
+LBCAT,Category for Lab Test,LB
+LBSCAT,Subcategory for Lab Test,LB
+LBORRES,Result or Finding in Original Units Laboratory,LB
+LBORRESU,Original Units Laboratory,LB
+LBORNRLO,Reference Range Lower Limit in Original Units Laboratory,LB
+LBORNRHI,Reference Range Upper Limit in Original Units Laboratory,LB
+LBSTRESC,Character Result Finding in Standard Format Laboratory,LB
+LBSTRESN,Numeric Result Finding in Standard Units Laboratory,LB
+LBSTRESU,Standard Units Laboratory,LB
+LBSTNRLO,Reference Range Lower Limit Standard Units Laboratory,LB
+LBSTNRHI,Reference Range Upper Limit Standard Units Laboratory,LB
+LBNRIND,Reference Range Indicator Laboratory,LB
+LBSTAT,Completion Status Laboratory,LB
+LBREASND,Reason Not Performed Laboratory,LB
+LBNAM,Vendor Name Laboratory,LB
+LBLOINC,LOINC Code Laboratory,LB
+LBLAT,Laterality Laboratory,LB
+LBDTC,Date Time of Specimen Collection Laboratory,LB
+LBDY,Study Day of Specimen Collection Laboratory,LB
+VSSEQ,Sequence Number Vital Signs,VS
+VSGRPID,Group Identifier Vital Signs,VS
+VSTESTCD,Vital Signs Test Short Name,VS
+VSTEST,Vital Signs Test Name,VS
+VSCAT,Category of Vital Signs,VS
+VSSCAT,Subcategory of Vital Signs,VS
+VSORRES,Result or Finding in Original Units Vital Signs,VS
+VSORRESU,Original Units Vital Signs,VS
+VSORNRLO,Reference Range Lower Limit Original Units Vital Signs,VS
+VSORNRHI,Reference Range Upper Limit Original Units Vital Signs,VS
+VSSTRESC,Character Result Finding in Standard Format Vital Signs,VS
+VSSTRESN,Numeric Result Finding in Standard Units Vital Signs,VS
+VSSTRESU,Standard Units Vital Signs,VS
+VSSTNRLO,Reference Range Lower Limit Standard Units Vital Signs,VS
+VSSTNRHI,Reference Range Upper Limit Standard Units Vital Signs,VS
+VSNRIND,Reference Range Indicator Vital Signs,VS
+VSSTAT,Completion Status Vital Signs,VS
+VSPOS,Position of Subject Vital Signs,VS
+VSLOC,Location of Vital Signs Measurement,VS
+VSLAT,Laterality Vital Signs,VS
+VSBLFL,Baseline Flag Vital Signs,VS
+VSDTC,Date Time of Vital Signs Measurements,VS
+VSDY,Study Day of Vital Signs Measurements,VS
+VSTPT,Planned Time Point Name Vital Signs,VS
+VSTPTNUM,Planned Time Point Number Vital Signs,VS
+VSELTM,Planned Elapsed Time from Time Point Reference Vital Signs,VS
+MHSEQ,Sequence Number Medical History,MH
+MHGRPID,Group Identifier Medical History,MH
+MHTERM,Reported Term for the Medical History,MH
+MHMODIFY,Modified Reported Term Medical History,MH
+MHCAT,Category for Medical History,MH
+MHSCAT,Subcategory for Medical History,MH
+MHPRESP,Medical History Pre Specified,MH
+MHOCCUR,Medical History Occurrence,MH
+MHSTAT,Completion Status Medical History,MH
+MHREASND,Reason Not Done Medical History,MH
+MHBODSYS,Body System or Organ Class Medical History,MH
+MHDECOD,Dictionary Derived Term Medical History,MH
+MHSTDTC,Start Date Time of Medical History Event,MH
+MHENDTC,End Date Time of Medical History Event,MH
+MHSTDY,Study Day of Start of Medical History Event,MH
+MHENDY,Study Day of End of Medical History Event,MH
+MHENRF,End Relative to Reference Period Medical History,MH
+MHDY,Study Day of Collection Medical History,MH
+PESEQ,Sequence Number Physical Examination,PE
+PETERM,Reported Term for the Physical Finding,PE
+PEMODIFY,Modified Reported Term Physical Examination,PE
+PECAT,Category for Physical Examination,PE
+PESCAT,Subcategory for Physical Examination,PE
+PEBODSYS,Body System Examined Physical Examination,PE
+PEDECOD,Dictionary Derived Term Physical Examination,PE
+PEORRES,Result or Finding in Original Units Physical Examination,PE
+PESTRESC,Character Result Finding in Standard Format Physical Examination,PE
+PECLSIG,Clinically Significant Finding Physical Examination,PE
+PESTAT,Completion Status Physical Examination,PE
+PEREASND,Reason Not Performed Physical Examination,PE
+PEDTC,Date Time of Physical Examination,PE
+PEDY,Study Day of Physical Examination,PE
+PEBLFL,Baseline Flag Physical Examination,PE
+PEPOS,Position of Subject Physical Examination,PE
+EGSEQ,Sequence Number ECG,EG
+EGTESTCD,ECG Test or Examination Short Name,EG
+EGTEST,ECG Test or Examination Name,EG
+EGCAT,Category for ECG Test,EG
+EGORRES,Result or Finding in Original Units ECG,EG
+EGORRESU,Original Units ECG,EG
+EGSTRESC,Character Result Finding in Standard Format ECG,EG
+EGSTRESN,Numeric Result Finding in Standard Units ECG,EG
+EGSTRESU,Standard Units ECG,EG
+EGNRIND,Reference Range Indicator ECG,EG
+EGSTAT,Completion Status ECG,EG
+EGLOC,Location of Electrode Placement ECG,EG
+EGMETHOD,Method of ECG Test,EG
+EGPOS,Position of Subject ECG,EG
+EGDTC,Date Time of ECG,EG
+EGDY,Study Day of ECG,EG
+EGTPT,Planned Time Point Name ECG,EG
+EGTPTNUM,Planned Time Point Number ECG,EG
+EGREASND,Reason Not Performed ECG,EG
+EGBLFL,Baseline Flag ECG,EG
+SCSEQ,Sequence Number Subject Characteristics,SC
+SCTEST,Subject Characteristics Test Name,SC
+SCTESTCD,Subject Characteristics Test Short Name,SC
+SCORRES,Result or Finding in Original Units Subject Characteristics,SC
+SCSTRESC,Character Result Finding in Standard Format Subject Characteristics,SC
+SCSTRESN,Numeric Result Finding in Standard Units Subject Characteristics,SC
+SCAT,Category for Subject Characteristics,SC
+SCDTC,Date Time of Collection Subject Characteristics,SC
+SCDY,Study Day of Collection Subject Characteristics,SC
+SCSTAT,Completion Status Subject Characteristics,SC
+SCREASND,Reason Not Done Subject Characteristics,SC
