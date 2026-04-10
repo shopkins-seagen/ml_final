@@ -197,3 +197,71 @@ SCDTC,Date Time of Collection Subject Characteristics,SC
 SCDY,Study Day of Collection Subject Characteristics,SC
 SCSTAT,Completion Status Subject Characteristics,SC
 SCREASND,Reason Not Done Subject Characteristics,SC
+AEACN,Action Taken with Study Treatment,AE
+AEOUT,Outcome of Adverse Event,AE
+AETOXGR,Standard Toxicity Grade for Adverse Event,AE
+AEREL,Causality of Adverse Event,AE
+AEBODSYS,Body System or Organ Class for Adverse Event,AE
+AEDECOD,Dictionary-Derived Adverse Event Term,AE
+AEHLGT,High Level Group Term for Adverse Event,AE
+AEHLT,High Level Term for Adverse Event,AE
+CMDECOD,Standardized Medication Name for Concomitant Medication,CM
+CMCLAS,Medication Class for Concomitant Medication,CM
+CMDOSFRQ,Dosing Frequency per Interval for Concomitant Medication,CM
+CMROUTE,Route of Administration for Concomitant Medication,CM
+CMINDDC,Standardized Indication for Concomitant Medication,CM
+CMENRTPT,End Relative to Reference Time Point for Concomitant Medication,CM
+INVID,Investigator Identifier for Demographics,DM
+SITEID,Study Site Identifier for Demographics,DM
+RFSTDTC,Subject Reference Start Date/Time for Demographics,DM
+RFENDTC,Subject Reference End Date/Time for Demographics,DM
+ETHNIC,Ethnicity of Subject,DM
+ARMCD,Planned Arm Code for Demographics,DM
+EGTEST,ECG Test Name,EG
+EGORRES,Result or Finding in Original Units for ECG,EG
+EGORRESU,Original Units for ECG Test Result,EG
+EGSTRESC,Character Result/Finding in Standard Format for ECG,EG
+EGSTRESN,Numeric Result/Finding in Standard Units for ECG,EG
+EGSTRESU,Standard Units for ECG Test Result,EG
+EGDTC,Date/Time of ECG,EG
+EGPOS,ECG Position of Subject,EG
+EXTRT,Name of Actual Treatment for Exposure,EX
+EXDOSE,Dose per Administration for Exposure,EX
+EXDOSU,Units of Dose for Exposure,EX
+EXDOSFRQ,Dosing Frequency per Interval for Exposure,EX
+EXROUTE,Route of Administration for Exposure,EX
+EXLOT,Lot Number for Exposure Treatment,EX
+EXLOC,Anatomical Location for Exposure,EX
+LBTEST,Laboratory Test Name,LB
+LBORRES,Result or Finding in Original Units for Laboratory Test,LB
+LBORRESU,Original Units for Laboratory Test Result,LB
+LBSTRESC,Character Result in Standard Format for Laboratory Test,LB
+LBSTRESN,Numeric Result in Standard Units for Laboratory Test,LB
+LBSTRESU,Standard Units for Laboratory Test,LB
+LBNRIND,Reference Range Indicator for Laboratory Test,LB
+LBCAT,Category for Laboratory Test,LB
+MHTERM,Reported Term for the Medical History,MH
+MHDECOD,Dictionary-Derived Medical History Term,MH
+MHBODSYS,Body System or Organ Class for Medical History,MH
+MHSTDTC,Start Date/Time of Medical History Event,MH
+MHENDTC,End Date/Time of Medical History Event,MH
+MHPRESP,Medical History Event Pre-Specified,MH
+PETEST,Physical Examination Test Name,PE
+PEORRES,Result or Finding in Original Units for Physical Examination,PE
+PESTRESC,Character Result in Standard Format for Physical Examination,PE
+PEBODSYS,Body System Examined for Physical Examination,PE
+PELOC,Location of Finding for Physical Examination,PE
+PESTAT,Completion Status for Physical Examination,PE
+SCTEST,Subject Characteristics Test Name,SC
+SCORRES,Result or Finding in Original Units for Subject Characteristics,SC
+SCSTRESC,Character Result in Standard Format for Subject Characteristics,SC
+SCSTRESN,Numeric Result in Standard Units for Subject Characteristics,SC
+SCCAT,Category for Subject Characteristics,SC
+VSTEST,Vital Signs Test Name,VS
+VSORRES,Result or Finding in Original Units for Vital Signs,VS
+VSORRESU,Original Units for Vital Signs Result,VS
+VSSTRESC,Character Result in Standard Format for Vital Signs,VS
+VSSTRESN,Numeric Result in Standard Units for Vital Signs,VS
+VSSTRESU,Standard Units for Vital Signs,VS
+VSLOC,Location for Vital Signs Measurement,VS
+VSPOS,Position of Subject during Vital Signs Measurement,VS
