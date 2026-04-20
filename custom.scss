@@ -1,0 +1,81 @@
+/*-- scss:defaults --*/
+
+// Bootstrap variable overrides
+$primary:        #2c7bb6;
+$secondary:      #5a6268;
+$font-family-sans-serif: "Inter", "Segoe UI", system-ui, sans-serif;
+$font-size-base: 0.95rem;
+$headings-font-weight: 600;
+$border-radius: 0.4rem;
+
+/*-- scss:rules --*/
+
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap');
+
+// Header gradient
+#title-block-header {
+  background: linear-gradient(135deg, #2c7bb6 0%, #1a4f7a 100%);
+  color: white;
+  padding: 2.5rem 2rem 2rem;
+  margin-bottom: 2rem;
+  border-radius: 0 0 0.5rem 0.5rem;
+}
+#title-block-header .title    { color: white; font-size: 2rem; font-weight: 700; }
+#title-block-header .subtitle { color: rgba(255,255,255,0.85); font-size: 1.1rem; }
+#title-block-header .author   { color: rgba(255,255,255,0.75); font-size: 0.9rem; }
+#title-block-header .date     { color: rgba(255,255,255,0.7);  font-size: 0.85rem; }
+
+// TOC
+#TOC {
+  background: #f8f9fa;
+  border-left: 3px solid $primary;
+  border-radius: $border-radius;
+  padding: 1rem;
+  font-size: 0.85rem;
+}
+#TOC a        { color: #444; }
+#TOC a:hover  { color: $primary; text-decoration: none; }
+#TOC .active  { color: $primary; font-weight: 600; }
+
+// Headings
+h2 {
+  border-bottom: 2px solid #dee2e6;
+  padding-bottom: 0.4rem;
+  margin-top: 2.5rem;
+  color: #1a4f7a;
+}
+h3 { color: #2c7bb6; }
+
+// Code
+pre.sourceCode {
+  border: 1px solid #dee2e6;
+  border-radius: $border-radius;
+  font-size: 0.85rem;
+}
+
+// Tables
+table { font-size: 0.9rem; width: 100%; }
+table thead th {
+  background: #2c7bb6;
+  color: white;
+  font-weight: 600;
+  padding: 0.6rem 0.8rem;
+}
+table tbody tr:nth-child(even) { background: #f8f9fa; }
+table tbody tr:hover           { background: #e8f4fd; }
+table td, table th             { padding: 0.5rem 0.8rem; }
+
+// Tabset
+.panel-tabset .nav-tabs .nav-link.active {
+  color: $primary;
+  border-bottom: 2px solid $primary;
+  font-weight: 600;
+}
+
+// Callout
+.callout {
+  border-radius: $border-radius;
+  border-left-width: 4px;
+}
+
+hr { border-color: #dee2e6; margin: 2rem 0; }
