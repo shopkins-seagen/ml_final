@@ -1,0 +1,135 @@
+/*-- scss:defaults --*/
+
+$body-bg: #FFFFFF;
+$body-color: #1A1A2E;
+$link-color: #0053A0;
+$selection-bg: #CCE0F5;
+$presentation-heading-color: #0053A0;
+$presentation-heading-font: "Segoe UI", Arial, sans-serif;
+$font-family-sans-serif: "Segoe UI", Arial, sans-serif;
+$code-block-bg: #EEF3FA;
+
+/*-- scss:rules --*/
+
+.reveal,
+.reveal .slides,
+.reveal .slides section {
+  background-color: #FFFFFF !important;
+  color: #1A1A2E !important;
+}
+
+.reveal .slides section {
+  padding: 20px 48px 80px 48px !important;
+  box-sizing: border-box;
+  overflow: hidden;
+}
+
+.reveal h1,
+.reveal h2 {
+  color: #0053A0;
+  border-bottom: 3px solid #00A3E0;
+  padding-bottom: 8px;
+  margin-bottom: 16px;
+}
+
+.reveal h3,
+.reveal h4 {
+  color: #001F5B;
+}
+
+.reveal p,
+.reveal li,
+.reveal span {
+  color: #1A1A2E !important;
+}
+
+.reveal .title-slide,
+.reveal .title-slide h1,
+.reveal .title-slide h2,
+.reveal .title-slide p {
+  background-color: #FFFFFF !important;
+  color: #0053A0 !important;
+}
+
+.reveal table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 12px 0;
+}
+
+.reveal table thead tr {
+  background-color: #0053A0;
+}
+
+.reveal table thead tr th {
+  color: #FFFFFF !important;
+  padding: 8px 12px;
+}
+
+.reveal table tbody tr:nth-child(even) {
+  background-color: #E8F1FA;
+}
+
+.reveal table tbody tr td {
+  color: #1A1A2E !important;
+  padding: 6px 12px;
+}
+
+.reveal pre {
+  border-left: 4px solid #0053A0;
+  background-color: #EEF3FA !important;
+  color: #1A1A2E !important;
+  padding: 12px;
+  border-radius: 4px;
+}
+
+.reveal code {
+  background-color: #EEF3FA !important;
+  color: #1A1A2E !important;
+}
+
+.reveal .progress {
+  color: #0053A0;
+  height: 4px;
+}
+
+.reveal .slide-number {
+  background-color: #0053A0;
+  color: #FFFFFF !important;
+  border-radius: 4px;
+  padding: 2px 6px;
+}
+
+.reveal .footer {
+  color: #0053A0 !important;
+  font-size: 0.7em;
+  border-top: 2px solid #00A3E0;
+  padding-top: 4px;
+}
+
+.callout {
+  border-left-color: #0053A0 !important;
+  background-color: #EEF3FA !important;
+  color: #1A1A2E !important;
+}
+
+.reveal ul,
+.reveal ol {
+  margin-left: 1.2em;
+  line-height: 1.7;
+}
+
+.smaller {
+  font-size: 0.72em !important;
+  line-height: 1.4;
+}
+
+.reveal blockquote {
+  font-size: 0.78em;
+  border-left: 4px solid #0053A0;
+  padding-left: 12px;
+  color: #0053A0;
+  background: #EAF2FF;
+  width: 100%;
+  margin-bottom: 12px;
+}
