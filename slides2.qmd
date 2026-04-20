@@ -1,0 +1,643 @@
+---
+title: "SDTM Domain Classifier"
+subtitle: "Classifying Clinical Trial Variables using KNN & CART"
+author: "Stevens Institute of Technology — Data Analytics Final Project"
+date: today
+format:
+  revealjs:
+    theme: [simple, pfizer.scss]
+    transition: slide
+    slide-number: true
+    progress: true
+    code-fold: true
+    code-summary: "Show code"
+    highlight-style: github-light
+    embed-resources: true
+    width: 1280
+    height: 720
+    margin: 0.05
+    scrollable: false
+execute:
+  warning: false
+  message: false
+  echo: false
+jupyter: python3
+---
+
+```{python}
+import pandas as pd
+import numpy as np
+import matplotlib.pyplot as plt
+import matplotlib
+import seaborn as sns
+import warnings
+import os
+warnings.filterwarnings('ignore')
+
+from sklearn.metrics import classification_report
+from sklearn.feature_extraction.text import TfidfVectorizer
+from sklearn.preprocessing import LabelEncoder
+from sklearn.model_selection import train_test_split, cross_val_score, GridSearchCV
+from sklearn.neighbors import KNeighborsClassifier
+from sklearn.tree import DecisionTreeClassifier, plot_tree
+from sklearn.metrics import (
+    accuracy_score, precision_score, recall_score, f1_score,
+    confusion_matrix, ConfusionMatrixDisplay
+)
+
+np.random.seed(42)
+plt.style.use('seaborn-v0_8-whitegrid')
+matplotlib.rcParams['figure.dpi'] = 100
+
+def light_fig(ax, fig, title=''):
+    ax.set_facecolor('#F4F7FB')
+    fig.patch.set_facecolor('#FFFFFF')
+    if title:
+        ax.set_title(title, fontsize=12, fontweight='bold', color='#1A1A2E')
+    ax.tick_params(colors='#1A1A2E')
+    ax.xaxis.label.set_color('#1A1A2E')
+    ax.yaxis.label.set_color('#1A1A2E')
+    for spine in ax.spines.values():
+        spine.set_edgecolor('#CCCCCC')
+```
+
+## What is SDTM?
+
+:::: {.columns}
+::: {.column width="55%"}
+**CDISC SDTM** (Study Data Tabulation Model) is the **FDA-required standard** for organizing clinical trial data for regulatory submission.
+
+- Each variable belongs to a **domain** (e.g., AE = Adverse Events)
+- Variables have names like `AEDECOD`, `VSRESULT`, `LBTEST`
+- Manually mapping hundreds of variables is **tedious and error-prone**
+- This project **automates** that mapping with machine learning
+:::
+::: {.column width="45%"}
+| Domain | Description |
+|--------|-------------|
+| **AE** | Adverse Events |
+| **CM** | Concomitant Medications |
+| **DM** | Demographics |
+| **EG** | ECG Test Results |
+| **EX** | Exposure |
+| **LB** | Laboratory Tests |
+| **MH** | Medical History |
+| **PE** | Physical Examination |
+| **SC** | Subject Characteristics |
+| **VS** | Vital Signs |
+:::
+::::
+
+## Project Objective
+
+::: {.smaller}
+> Given a variable label from a clinical trial dataset, can we automatically predict which SDTM domain it belongs to?
+
+| | |
+|---|---|
+| **Dataset** | 266 SDTM variables across 10 domain classes |
+| **Features** | TF-IDF vectorization on variable name + label text (200 features) |
+| **Split** | 75% train / 25% test, stratified by domain |
+| **Models** | K-Nearest Neighbors (KNN) vs Classification & Regression Tree (CART) |
+| **Tuning** | KNN: cross-validated k · CART: grid search on depth & min samples |
+:::
+
+## Pipeline Overview
+
+```{python}
+import matplotlib.patches as mpatches
+import matplotlib.patheffects as pe
+
+fig, ax = plt.subplots(figsize=(11, 1.8))
+ax.set_xlim(0, 11); ax.set_ylim(0, 1); ax.axis('off')
+fig.patch.set_facecolor('white')
+
+steps = ["Raw CSV", "Clean &\nEncode", "TF-IDF", "Split\n75/25", "KNN\nTuning", "CART\nSearch", "Compare", "Best\nModel"]
+colors = ['#CCE5FF','#CCE5FF','#CCE5FF','#CCE5FF','#0053A0','#0053A0','#003580','#001F5B']
+tcolors = ['#001F5B','#001F5B','#001F5B','#001F5B','white','white','white','white']
+xs = [0.2, 1.55, 2.9, 4.25, 5.35, 6.45, 7.8, 9.7]
+
+for i, (s, c, tc, x) in enumerate(zip(steps, colors, tcolors, xs)):
+    ax.add_patch(mpatches.FancyBboxPatch((x-0.55, 0.15), 1.0, 0.7,
+        boxstyle="round,pad=0.05", facecolor=c, edgecolor='#0053A0', linewidth=1.2))
+    ax.text(x-0.05, 0.5, s, ha='center', va='center', fontsize=8.5,
+            color=tc, fontweight='bold')
+    if i < len(steps)-1 and i not in [3]:
+        ax.annotate('', xy=(xs[i+1]-0.55, 0.5), xytext=(x+0.45, 0.5),
+                    arrowprops=dict(arrowstyle='->', color='#0053A0', lw=1.5))
+
+# split arrow from D to KNN and CART
+ax.annotate('', xy=(xs[4]-0.55, 0.72), xytext=(xs[3]+0.45, 0.72),
+            arrowprops=dict(arrowstyle='->', color='#0053A0', lw=1.5))
+ax.annotate('', xy=(xs[5]-0.55, 0.28), xytext=(xs[3]+0.45, 0.28),
+            arrowprops=dict(arrowstyle='->', color='#0053A0', lw=1.5))
+ax.annotate('', xy=(xs[6]-0.55, 0.5), xytext=(xs[4]+0.45, 0.5),
+            arrowprops=dict(arrowstyle='->', color='#0053A0', lw=1.5))
+ax.annotate('', xy=(xs[6]-0.55, 0.5), xytext=(xs[5]+0.45, 0.5),
+            arrowprops=dict(arrowstyle='->', color='#0053A0', lw=1.5))
+
+plt.tight_layout(pad=0)
+plt.show()
+```
+
+## Load & Explore Data
+
+```{python}
+#| echo: true
+#| code-fold: true
+data_path = os.path.join(os.path.dirname(os.path.abspath("slides.qmd")), "data", "sdtm_variables.csv")
+df = pd.read_csv(data_path)
+df.head(6)
+```
+
+## Domain Distribution
+
+```{python}
+domain_counts = df['domain'].value_counts()
+fig, ax = plt.subplots(figsize=(10, 4))
+domain_counts.plot(kind='bar', ax=ax,
+                   color=sns.color_palette('tab10', len(domain_counts)), edgecolor='black')
+light_fig(ax, fig, 'SDTM Domain Variable Distribution')
+ax.set_xlabel('SDTM Domain'); ax.set_ylabel('Number of Variables')
+ax.tick_params(axis='x', rotation=0)
+for bar in ax.patches:
+    ax.annotate(f'{int(bar.get_height())}',
+                xy=(bar.get_x() + bar.get_width() / 2, bar.get_height()),
+                ha='center', va='bottom', fontsize=9)
+plt.tight_layout()
+plt.show()
+```
+
+## Feature Engineering — TF-IDF
+
+:::: {.columns}
+::: {.column width="48%"}
+**Why TF-IDF?**
+
+- Variable labels are short clinical text snippets
+- TF-IDF captures **term importance** relative to the corpus
+- Bigrams capture phrases like *"adverse event"*, *"vital sign"*
+- `sublinear_tf=True` dampens dominance of frequent terms
+
+**Result:** 266 x 200 sparse feature matrix
+:::
+::: {.column width="52%"}
+```{python}
+#| echo: true
+#| code-fold: true
+df_clean = df.dropna().copy()
+le = LabelEncoder()
+df_clean['domain_encoded'] = le.fit_transform(df_clean['domain'])
+df_clean['text'] = (df_clean['variable_name'].str.lower() + ' '
+                    + df_clean['variable_label'].str.lower())
+tfidf = TfidfVectorizer(ngram_range=(1, 2), max_features=200,
+                        sublinear_tf=True, stop_words='english')
+X = tfidf.fit_transform(df_clean['text']).toarray()
+y = df_clean['domain_encoded'].values
+feature_names = tfidf.get_feature_names_out()
+X_train, X_test, y_train, y_test = train_test_split(
+    X, y, test_size=0.25, random_state=42, stratify=y)
+f"Feature matrix: {X.shape} | Classes: {len(le.classes_)}"
+```
+:::
+::::
+
+## Data Preprocessing and Label Encoding
+
+```{python}
+# Drop rows with missing values (none expected, but defensive)
+df_clean = df.dropna().copy()
+print(f"Records after cleaning: {len(df_clean)}")
+
+# Encode target labels (domain) with LabelEncoder
+le = LabelEncoder()
+df_clean['domain_encoded'] = le.fit_transform(df_clean['domain'])
+
+# Display mapping
+label_map = dict(zip(le.classes_, le.transform(le.classes_)))
+print("\n=== Domain → Encoded Label Mapping ===")
+for domain, code in sorted(label_map.items()):
+    print(f"  {domain:5s}  →  {code}")
+```
+
+
+## Feature Engineering from Labels
+We combine the `variable_name` and `variable_label` text, then apply **TF-IDF vectorization** to create numeric features.  
+TF-IDF captures term importance across documents (labels), making it an effective feature for text-based classification.
+
+```{python}
+# Combine variable_name + variable_label as the text corpus for each record
+df_clean['text'] = df_clean['variable_name'].str.lower() + ' ' + df_clean['variable_label'].str.lower()
+
+# TF-IDF Vectorization (unigrams + bigrams, max 200 features)
+tfidf = TfidfVectorizer(
+    ngram_range=(1, 2),
+    max_features=200,
+    sublinear_tf=True,
+    stop_words='english'
+)
+
+X = tfidf.fit_transform(df_clean['text']).toarray()
+y = df_clean['domain_encoded'].values
+
+print(f"Feature matrix shape : {X.shape}")
+print(f"Target vector shape  : {y.shape}")
+print(f"Number of classes    : {len(le.classes_)}")
+print(f"Classes              : {list(le.classes_)}")
+
+# Show top TF-IDF features
+feature_names = tfidf.get_feature_names_out()
+print(f"\nSample TF-IDF features: {feature_names[:20]}")
+```
+
+
+## Split Data into Training and Testing Sets
+
+```{python}
+X_train, X_test, y_train, y_test = train_test_split(
+    X, y,
+    test_size=0.25,
+    random_state=42,
+    stratify=y      # keep class proportions balanced in both splits
+)
+
+print(f"Training set  : {X_train.shape[0]} samples ({X_train.shape[0]/len(X)*100:.0f}%)")
+print(f"Test set      : {X_test.shape[0]} samples  ({X_test.shape[0]/len(X)*100:.0f}%)")
+
+# Class distribution in each split
+train_dist = pd.Series(y_train).map(dict(enumerate(le.classes_))).value_counts().sort_index()
+test_dist  = pd.Series(y_test).map(dict(enumerate(le.classes_))).value_counts().sort_index()
+
+split_df = pd.DataFrame({'Train': train_dist, 'Test': test_dist})
+print("\n=== Class Distribution per Split ===")
+print(split_df)
+```
+
+
+
+## Train KNN Model
+We use cross-validation over a range of **k** values to select the optimal number of neighbors.
+
+```{python}
+#| echo: false
+#| code-fold: true
+k_range = range(1, 16)
+cv_scores = []
+for k in k_range:
+    scores = cross_val_score(KNeighborsClassifier(n_neighbors=k, metric='cosine'),
+                             X_train, y_train, cv=5, scoring='accuracy')
+    cv_scores.append(scores.mean())
+best_k = k_range[np.argmax(cv_scores)]
+
+fig, ax = plt.subplots(figsize=(9, 2.2))
+ax.plot(list(k_range), cv_scores, marker='o', linewidth=2, color='#0053A0')
+ax.axvline(best_k, color='red', linestyle='--', label=f'Best k = {best_k}')
+ax.legend(fontsize=9)
+light_fig(ax, fig, f'KNN Cross-Validation Accuracy vs k  |  Best k = {best_k}')
+ax.set_xlabel('Number of Neighbors (k)'); ax.set_ylabel('CV Accuracy (5-fold)')
+plt.tight_layout(); plt.show()
+knn = KNeighborsClassifier(n_neighbors=best_k, metric='cosine')
+knn.fit(X_train, y_train)
+```
+
+## Evaluate KNN Model
+
+```{python}
+y_pred_knn = knn.predict(X_test)
+
+knn_accuracy  = accuracy_score(y_test, y_pred_knn)
+knn_precision = precision_score(y_test, y_pred_knn, average='weighted', zero_division=0)
+knn_recall    = recall_score(y_test, y_pred_knn, average='weighted', zero_division=0)
+knn_f1        = f1_score(y_test, y_pred_knn, average='weighted', zero_division=0)
+
+print("=" * 50)
+print("         KNN MODEL EVALUATION")
+print("=" * 50)
+print(f"  Accuracy  : {knn_accuracy:.4f}")
+print(f"  Precision : {knn_precision:.4f}")
+print(f"  Recall    : {knn_recall:.4f}")
+print(f"  F1-Score  : {knn_f1:.4f}")
+print("=" * 50)
+print("\nClassification Report:\n")
+print(classification_report(y_test, y_pred_knn, target_names=le.classes_, zero_division=0))
+
+
+```
+
+## KNN Confusion Matrix & Accuracy
+
+```{python}
+y_pred_knn = knn.predict(X_test)
+knn_accuracy  = accuracy_score(y_test, y_pred_knn)
+knn_precision = precision_score(y_test, y_pred_knn, average='weighted', zero_division=0)
+knn_recall    = recall_score(y_test, y_pred_knn, average='weighted', zero_division=0)
+knn_f1        = f1_score(y_test, y_pred_knn, average='weighted', zero_division=0)
+
+fig, ax = plt.subplots(figsize=(6, 2.5))
+ConfusionMatrixDisplay(confusion_matrix(y_test, y_pred_knn), display_labels=le.classes_).plot(
+    ax=ax, colorbar=False, cmap='Blues')
+light_fig(ax, fig, f'KNN Confusion Matrix  (k={best_k})  |  Accuracy: {knn_accuracy:.1%}')
+plt.setp(ax.get_xticklabels(), rotation=45, fontsize=8)
+plt.setp(ax.get_yticklabels(), fontsize=8)
+plt.tight_layout(); plt.show()
+```
+
+## KNN Interpretation
+
+::: {.smaller}
+| | |
+|---|---|
+| **Strengths** | Strong on large, lexically distinct domains (LB, VS, AE) |
+| | Cosine distance suits TF-IDF vectors well |
+| | Simple — no explicit training phase |
+| **Limitations** | Struggles with smaller/overlapping domains (EG, SC, MH) |
+| | No feature importance — black box |
+| | Sensitive to choice of k · Slow prediction (lazy learner) |
+| **Verdict** | Reasonable baseline but lacks interpretability for regulated clinical environments |
+:::
+
+
+## CART — Grid Search Tuning
+
+```{python}
+#| echo: true
+#| code-fold: true
+param_grid = {'max_depth': [3, 5, 7, 10, None], 'min_samples_split': [2, 4, 6]}
+cart_gs = GridSearchCV(DecisionTreeClassifier(criterion='gini', random_state=42),
+                       param_grid, cv=5, scoring='accuracy', n_jobs=1)
+cart_gs.fit(X_train, y_train)
+best_depth = cart_gs.best_params_['max_depth']
+cart = cart_gs.best_estimator_
+
+results = pd.DataFrame(cart_gs.cv_results_)
+pivot = results.pivot_table(values='mean_test_score',
+                            index='param_max_depth', columns='param_min_samples_split')
+fig, ax = plt.subplots(figsize=(7, 3.8))
+sns.heatmap(pivot, annot=True, fmt='.3f', cmap='Blues', ax=ax, linewidths=0.5)
+light_fig(ax, fig, f'Grid Search CV Accuracy  |  Best: depth={best_depth}')
+plt.tight_layout(); plt.show()
+```
+
+
+
+## Train CART Model
+CART (Classification and Regression Trees) uses the **Gini impurity** criterion.  
+We tune `max_depth` and `min_samples_split` via cross-validation.
+
+```{python}
+param_grid = {
+    'max_depth': [3, 5, 7, 10, None],
+    'min_samples_split': [2, 4, 6]
+}
+
+cart_gs = GridSearchCV(
+    DecisionTreeClassifier(criterion='gini', random_state=42),
+    param_grid,
+    cv=5,
+    scoring='accuracy',
+    n_jobs=1
+)
+cart_gs.fit(X_train, y_train)
+
+best_depth = cart_gs.best_params_['max_depth']
+best_min_split = cart_gs.best_params_['min_samples_split']
+print(f"Best params : max_depth={best_depth}, min_samples_split={best_min_split}")
+print(f"Best CV accuracy : {cart_gs.best_score_:.4f}")
+
+# Final CART model
+cart = cart_gs.best_estimator_
+print(f"\nCART model trained successfully.")
+```
+
+
+
+
+
+## Evaluate CART Model
+
+```{python}
+y_pred_cart = cart.predict(X_test)
+
+cart_accuracy  = accuracy_score(y_test, y_pred_cart)
+cart_precision = precision_score(y_test, y_pred_cart, average='weighted', zero_division=0)
+cart_recall    = recall_score(y_test, y_pred_cart, average='weighted', zero_division=0)
+cart_f1        = f1_score(y_test, y_pred_cart, average='weighted', zero_division=0)
+
+print("=" * 50)
+print("        CART MODEL EVALUATION")
+print("=" * 50)
+print(f"  Accuracy  : {cart_accuracy:.4f}")
+print(f"  Precision : {cart_precision:.4f}")
+print(f"  Recall    : {cart_recall:.4f}")
+print(f"  F1-Score  : {cart_f1:.4f}")
+print("=" * 50)
+print("\nClassification Report:\n")
+print(classification_report(y_test, y_pred_cart, target_names=le.classes_, zero_division=0))
+
+
+```
+
+
+
+## CART Confusion Matrix & Accuracy
+
+```{python}
+y_pred_cart = cart.predict(X_test)
+cart_accuracy  = accuracy_score(y_test, y_pred_cart)
+cart_precision = precision_score(y_test, y_pred_cart, average='weighted', zero_division=0)
+cart_recall    = recall_score(y_test, y_pred_cart, average='weighted', zero_division=0)
+cart_f1        = f1_score(y_test, y_pred_cart, average='weighted', zero_division=0)
+
+fig, ax = plt.subplots(figsize=(8, 4.5))
+ConfusionMatrixDisplay(confusion_matrix(y_test, y_pred_cart), display_labels=le.classes_).plot(
+    ax=ax, colorbar=True, cmap='Greens')
+light_fig(ax, fig, f'CART Confusion Matrix  (depth={best_depth})  |  Accuracy: {cart_accuracy:.1%}')
+plt.setp(ax.get_xticklabels(), rotation=45)
+plt.tight_layout(); plt.show()
+```
+## Visualize CART Decision Tree & Feature Importances
+
+```{python}
+# ── Decision Tree plot (pruned for readability) ───────────────────────────────
+tree_viz_depth = 10   # show top 3 levels for clarity
+
+fig, ax = plt.subplots(figsize=(24, 10))
+plot_tree(
+    cart,
+    max_depth=tree_viz_depth,
+    feature_names=feature_names,
+    class_names=le.classes_,
+    filled=True,
+    rounded=True,
+    fontsize=8,
+    ax=ax,
+    impurity=True
+)
+ax.set_title(
+    f'CART Decision Tree (top {tree_viz_depth} levels shown, max_depth={best_depth})',
+    fontsize=14, fontweight='bold'
+)
+plt.tight_layout()
+plt.show()
+```
+
+```{python}
+# ── Top-20 Feature Importances ────────────────────────────────────────────────
+importances = cart.feature_importances_
+feat_importance_df = pd.DataFrame({
+    'feature'   : feature_names,
+    'importance': importances
+}).sort_values('importance', ascending=False).head(20)
+
+fig, ax = plt.subplots(figsize=(9, 7))
+colors = sns.color_palette('viridis', len(feat_importance_df))
+ax.barh(feat_importance_df['feature'][::-1],
+        feat_importance_df['importance'][::-1],
+        color=colors, edgecolor='black')
+ax.set_xlabel('Gini Importance', fontsize=12)
+ax.set_title('CART — Top 20 Most Important TF-IDF Features', fontsize=13, fontweight='bold')
+plt.tight_layout()
+plt.show()
+
+print("\nTop 10 most discriminative TF-IDF tokens:")
+print(feat_importance_df[['feature', 'importance']].head(10).to_string(index=False))
+```
+
+## Top Feature Importances
+
+```{python}
+feat_df = (pd.DataFrame({'feature': feature_names, 'importance': cart.feature_importances_})
+           .sort_values('importance', ascending=False).head(15))
+fig, ax = plt.subplots(figsize=(9, 4.5))
+colors = sns.color_palette('Blues_r', len(feat_df))
+ax.barh(feat_df['feature'][::-1], feat_df['importance'][::-1], color=colors, edgecolor='black')
+light_fig(ax, fig, 'CART — Top 15 Most Important TF-IDF Features')
+ax.set_xlabel('Gini Importance')
+plt.tight_layout(); plt.show()
+```
+
+
+## CART Interpretation
+
+::: {.smaller}
+| | |
+|---|---|
+| **Strengths** | Near-perfect accuracy across all 10 domains |
+| | Explicit decision rules — fully auditable |
+| | Gini importance reveals discriminative terms |
+| | Fast prediction (eager learner) |
+| **Why it wins** | Clinical labels follow predictable lexical patterns |
+| | Keywords like *adverse*, *laboratory*, *vital* almost uniquely identify domains |
+| | Trees exploit sharp decision boundaries efficiently |
+| **Verdict** | CART is the clear winner — accurate, fast, and interpretable in a regulated clinical context |
+:::
+
+
+
+
+## Compare Model Performance
+Side-by-side comparison of all key metrics for KNN and CART.
+
+```{python}
+# ── Comparison table ──────────────────────────────────────────────────────────
+comparison = pd.DataFrame({
+    'Model'    : [f'KNN  (k={best_k})', f'CART (depth={best_depth})'],
+    'Accuracy' : [knn_accuracy,  cart_accuracy],
+    'Precision': [knn_precision, cart_precision],
+    'Recall'   : [knn_recall,    cart_recall],
+    'F1-Score' : [knn_f1,        cart_f1],
+})
+comparison = comparison.set_index('Model')
+
+
+# ── Bar chart comparison ───────────────────────────────────────────────────────
+metrics = ['Accuracy', 'Precision', 'Recall', 'F1-Score']
+x = np.arange(len(metrics))
+width = 0.35
+
+fig, ax = plt.subplots(figsize=(10, 5))
+bars_knn  = ax.bar(x - width/2, comparison.loc[comparison.index[0], metrics],
+                   width, label=comparison.index[0], color='steelblue', edgecolor='black')
+bars_cart = ax.bar(x + width/2, comparison.loc[comparison.index[1], metrics],
+                   width, label=comparison.index[1], color='seagreen', edgecolor='black')
+
+ax.set_xticks(x)
+ax.set_xticklabels(metrics, fontsize=12)
+ax.set_ylim(0, 1.15)
+ax.set_ylabel('Score', fontsize=12)
+ax.set_title('KNN vs CART — Performance Comparison across Metrics', fontsize=13, fontweight='bold')
+ax.legend(fontsize=11)
+
+for bar in bars_knn:
+    ax.text(bar.get_x() + bar.get_width()/2, bar.get_height() + 0.02,
+            f'{bar.get_height():.3f}', ha='center', va='bottom', fontsize=9)
+for bar in bars_cart:
+    ax.text(bar.get_x() + bar.get_width()/2, bar.get_height() + 0.02,
+            f'{bar.get_height():.3f}', ha='center', va='bottom', fontsize=9)
+
+plt.tight_layout()
+plt.show()
+
+# ── Winner summary ─────────────────────────────────────────────────────────────
+best_model = comparison['Accuracy'].idxmax()
+
+```
+
+## Model Comparison
+
+```{python}
+#| echo: false
+comparison = pd.DataFrame({
+    'Model'    : [f'KNN (k={best_k})', f'CART (depth={best_depth})'],
+    'Accuracy' : [knn_accuracy,  cart_accuracy],
+    'Precision': [knn_precision, cart_precision],
+    'Recall'   : [knn_recall,    cart_recall],
+    'F1-Score' : [knn_f1,        cart_f1],
+}).set_index('Model')
+```
+
+::: {.smaller}
+| Metric | KNN | CART | Winner |
+|---|---|---|---|
+| **Accuracy** | `{python} f"{knn_accuracy:.1%}"` | `{python} f"{cart_accuracy:.1%}"` | CART |
+| **Precision** | `{python} f"{knn_precision:.1%}"` | `{python} f"{cart_precision:.1%}"` | CART |
+| **Recall** | `{python} f"{knn_recall:.1%}"` | `{python} f"{cart_recall:.1%}"` | CART |
+| **F1-Score** | `{python} f"{knn_f1:.1%}"` | `{python} f"{cart_f1:.1%}"` | CART |
+
+> CART outperforms KNN across all metrics — driven by sharp lexical boundaries in clinical variable labels.
+:::
+
+
+## Summary & Conclusions
+
+:::: {.columns}
+::: {.column width="45%"}
+| Metric | KNN | CART |
+|--------|-----|------|
+| Accuracy | ~84% | ~99% |
+| F1-Score | ~83% | ~99% |
+:::
+::: {.column width="55%"}
+- CART dramatically outperforms KNN
+- Clinical labels have **discriminative keywords**
+- TF-IDF bigrams work well for short clinical text
+- CART is **interpretable** -- critical in regulated environments
+- **Recommendation:** Deploy CART as an automated SDTM domain tagging assistant
+:::
+::::
+
+## Thank You {.center}
+
+### SDTM Domain Classifier
+
+**K-Nearest Neighbors vs Classification & Regression Tree**
+
+*Data Analytics Final Project — Stevens Institute of Technology*
+
+
+
+
+  
+
+
+
